@@ -111,10 +111,6 @@ apt install -y -q ttf-unifont \
     autoconf \
     apt-utils
 #--- prepare the answer for database and automatic download of shape files
-https://github.com/gravitystorm/openstreetmap-carto/archive/v4.13.0.tar.gz
-echo "openstreetmap-carto openstreetmap-carto/database-name string ${OSM_DB}" | debconf-set-selections
-echo "openstreetmap-carto-common openstreetmap-carto/fetch-data boolean true" | debconf-set-selections
-apt install -y openstreetmap-carto
 apt install -y git build-essential \
      fakeroot \
      devscripts \
@@ -139,6 +135,7 @@ if [ $(grep -c ${OSM_USER} /etc/passwd) -eq 0 ]; then	#if we don't have the OSM 
 fi
 
 su ${OSM_USER} <<EOF
+cd ~
 wget https://github.com/gravitystorm/openstreetmap-carto/archive/v4.13.0.tar.gz
 tar -xzf v4.13.0.tar.gz
 EOF
