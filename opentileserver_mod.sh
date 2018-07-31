@@ -111,6 +111,7 @@ apt install -y -q ttf-unifont \
     autoconf \
     apt-utils
 #--- prepare the answer for database and automatic download of shape files
+https://github.com/gravitystorm/openstreetmap-carto/archive/v4.13.0.tar.gz
 echo "openstreetmap-carto openstreetmap-carto/database-name string ${OSM_DB}" | debconf-set-selections
 echo "openstreetmap-carto-common openstreetmap-carto/fetch-data boolean true" | debconf-set-selections
 apt install -y openstreetmap-carto
@@ -136,6 +137,11 @@ if [ $(grep -c ${OSM_USER} /etc/passwd) -eq 0 ]; then	#if we don't have the OSM 
     # Password is disabled by default, so no access is possible
     useradd -m ${OSM_USER} -s /bin/bash -c "OpenStreetMap"
 fi
+
+su ${OSM_USER} <<EOF
+wget https://github.com/gravitystorm/openstreetmap-carto/archive/v4.13.0.tar.gz
+tar -xzf v4.13.0.tar.gz
+EOF
 
 #-------------------------------------------------------------------------------
 #--- 3. Prepare database
@@ -170,7 +176,7 @@ wget ${PBF_URL}
 osmosis --read-replication-interval-init workingDirectory=.
 sed -i.save "s|#\?baseUrl=.*|baseUrl=${UPDATE_URL}|" configuration.txt
 # Inject in database (could be very long for the planet)
-osm2pgsql --slim -d ${OSM_DB} -C ${C_MEM} --number-processes ${NP} --hstore -S /usr/share/osm2pgsql/default.style ${PBF_FILE}
+osm2pgsql --slim -d ${OSM_DB} -C ${C_MEM} --number-processes ${NP} --hstore -S ../openstreetmap-carto-4.13.0/openstreetmap-carto.style ${PBF_FILE}
 #rm ${PBF_FILE}
 EOF
 
