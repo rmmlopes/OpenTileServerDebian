@@ -106,7 +106,9 @@ apt install -y -q ttf-unifont \
     apache2 \
     libapache2-mod-wsgi \
     javascript-common \
-    libjs-leaflet
+    libjs-leaflet \
+    m4 \
+    autoconf
 #--- prepare the answer for database and automatic download of shape files
 echo "openstreetmap-carto openstreetmap-carto/database-name string ${OSM_DB}" | debconf-set-selections
 echo "openstreetmap-carto-common openstreetmap-carto/fetch-data boolean true" | debconf-set-selections
