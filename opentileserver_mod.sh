@@ -109,7 +109,10 @@ apt install -y -q ttf-unifont \
     libjs-leaflet \
     m4 \
     autoconf \
-    apt-utils
+    apt-utils \
+    node-carto \
+    mapnik-utils \
+    curl
 #--- prepare the answer for database and automatic download of shape files
 apt install -y git build-essential \
      fakeroot \
@@ -136,8 +139,11 @@ fi
 
 su ${OSM_USER} <<EOF
 cd ~
-wget https://github.com/gravitystorm/openstreetmap-carto/archive/v4.13.0.tar.gz
-tar -xzf v4.13.0.tar.gz
+wget https://github.com/gravitystorm/openstreetmap-carto/archive/v2.45.0.tar.gz
+tar -xzf v2.45.0.tar.gz
+cd openstreetmap-carto-2.45.0
+./scripts/get-shapefiles.py
+carto project.mml > style.xml
 EOF
 
 #-------------------------------------------------------------------------------
@@ -173,7 +179,7 @@ wget ${PBF_URL}
 osmosis --read-replication-interval-init workingDirectory=.
 sed -i.save "s|#\?baseUrl=.*|baseUrl=${UPDATE_URL}|" configuration.txt
 # Inject in database (could be very long for the planet)
-osm2pgsql --slim -d ${OSM_DB} -C ${C_MEM} --number-processes ${NP} --hstore -S ../openstreetmap-carto-4.13.0/openstreetmap-carto.style ${PBF_FILE}
+osm2pgsql --slim -d ${OSM_DB} -C ${C_MEM} --number-processes ${NP} --hstore -S ../openstreetmap-carto-2.45.0/openstreetmap-carto.style ${PBF_FILE}
 #rm ${PBF_FILE}
 EOF
 
@@ -252,7 +258,7 @@ font_dir=/usr/share/fonts/truetype
 font_dir_recurse=true
 ;TILEDIR=/home/${OSM_USER}/www/mod_tile
 URI=/osm/
-XML=/usr/share/openstreetmap-carto/style.xml
+XML=/home/osm/openstreetmap-carto-2.45.0/style.xml
 DESCRIPTION=This is the standard osm mapnik style
 ;ATTRIBUTION=&copy;<a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> and <a href=\"http://wiki.openstreetmap.org/wiki/Contributors\">contributors</a>, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>
 ;HOST=tile.openstreetmap.org
